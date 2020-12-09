@@ -32,7 +32,6 @@ public class UserService {
 
   public String signin(String username, String password) {
     try {
-        System.out.println("BALLS");
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
       return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getRoles());
   } catch (AuthenticationException e) {
@@ -45,8 +44,7 @@ public String signup(User user) {
     if (!userRepository.existsByUsername(user.getUsername())) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        System.out.println("SHIT MAN");
-        System.out.println(user.getRoles() + "SHIT MAN");
+        System.out.println(user.getRoles());
         return jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
       } else {
         throw new CustomException("Username is already in use", HttpStatus.UNPROCESSABLE_ENTITY);

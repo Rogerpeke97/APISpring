@@ -19,14 +19,14 @@ public class UserDetailsImp implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User '" + user_entity + "' not found");
         }
-        return org.springframework.security.core.userdetails.User//
-        .withUsername(user_entity)//
-        .password(user.getPassword())//
-        .authorities(user.getRoles())//
-        .accountExpired(false)//
-        .accountLocked(false)//
-        .credentialsExpired(false)//
-        .disabled(false)//
+        return org.springframework.security.core.userdetails.User
+        .withUsername(user_entity)
+        .password(user.getPassword())
+        .authorities(user.getRoles())
+        .accountExpired(false)
+        .accountLocked(false)
+        .credentialsExpired(false)
+        .disabled(false)
         .build();
     }
 
