@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiParam;
 import org.modelmapper.ModelMapper;
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @Controller
 public class ApiController {
     @Autowired
@@ -34,9 +33,18 @@ public class ApiController {
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public String register(@RequestBody Feedback feedback){
+        System.out.println("signing up");
         return userService.signup(modelMapper.map(feedback, User.class));
         //return userDetailsImp.loadUserByUsername(feedback.getUsername());
     }
-    
-    
+
+    @PostMapping(value = "/account", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String userData(@RequestBody JwtMap jwtMap){
+        // THE FILTERING CHECKS FOR AUTHENTICATED REQUEST
+        // LOOKS AT THE HEADER OF THE JWT FOR THE TOKEN 
+        // IF IT PASSES THEN THIS EXECUTES
+        return "You are authenticated!";
+        //return userDetailsImp.loadUserByUsername(feedback.getUsername());
+    }
 }

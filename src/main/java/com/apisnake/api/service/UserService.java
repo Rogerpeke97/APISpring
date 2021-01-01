@@ -60,12 +60,16 @@ public User search(String username) {
   return user;
 }
 
-public User whoami(HttpServletRequest req) {
-  return userRepository.findByUsername(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
+public User whoami(String token) {
+  return userRepository.findByUsername(jwtTokenProvider.getUsername(token));
 }
 
 public String refresh(String username) {
   return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getRoles());
   }
+
+public boolean validateJwt(String jwt){
+  return jwtTokenProvider.validateToken(jwt);
+}
 
 }

@@ -43,7 +43,7 @@ public class JwtTokenProvider {
   }
 
   public String createToken(String username, List<Role> roles) {
-
+    System.out.println("creating TOKEN");
     Claims claims = Jwts.claims().setSubject(username);
     claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));
 
@@ -59,17 +59,21 @@ public class JwtTokenProvider {
   }
 
   public Authentication getAuthentication(String token) {
+    System.out.println("authenticating TOKEN");
     UserDetails userDetails = myUserDetails.loadUserByUsername(getUsername(token));
     return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
   }
 
   public String getUsername(String token) {
+    System.out.println("getusername TOKEN");
     return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
   }
 
   public String resolveToken(HttpServletRequest req) {
+    System.out.println("resolve TOKEN");
     String bearerToken = req.getHeader("Authorization");
     if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+      System.out.println("THERE IS A TOKEN1");
       return bearerToken.substring(7);
     }
     return null;
@@ -77,6 +81,7 @@ public class JwtTokenProvider {
 
   public boolean validateToken(String token) {
     try {
+      System.out.println("validate TOKEN2");
       Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
       return true;
     } catch (JwtException | IllegalArgumentException e) {
