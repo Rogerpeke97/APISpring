@@ -65,12 +65,12 @@ public class JwtTokenProvider {
   }
 
   public String getUsername(String token) {
-    System.out.println("getusername TOKEN");
+    System.out.println(token);
     return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
   }
 
   public String resolveToken(HttpServletRequest req) {
-    System.out.println("resolve TOKEN");
+    System.out.println(req.getHeader("Authorization"));
     String bearerToken = req.getHeader("Authorization");
     if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
       System.out.println("THERE IS A TOKEN1");

@@ -45,7 +45,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     //CHECKS FOR THE AUTHORIZATION HEADER AND EXECUTES RESOLVETOKEN FROM JWTTOKEN PROVIDER
     // IF THERE IS NO HEADER OR THE HEADER TOKEN IS INVALID
     // YOU WONT BE ABLE TO ACCESS TO /account
-    System.out.println("dofilterinternal TOKEN");
+    System.out.println(token);
     try {
       if (token != null && jwtTokenProvider.validateToken(token)) {
         System.out.println("authenticating in filter TOKEN");
