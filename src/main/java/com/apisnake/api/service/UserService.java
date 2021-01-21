@@ -1,5 +1,7 @@
 package com.apisnake.api.service;
 
+import java.util.Random;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.apisnake.api.exception.CustomException;
@@ -40,14 +42,74 @@ public class UserService {
 }
 
 public String signup(User user) {
-
     if (!userRepository.existsByUsername(user.getUsername())) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Random generator = new Random();
+        user.setScore(generator.nextInt(10));
+        user.setDate(user.getDate());
         userRepository.save(user);
         return "User succesfully created";
       } else {
         throw new CustomException("Username is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
       }
+}
+
+public String changePassword(User user){
+  try {
+    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+    user.setPassword(passwordEncoder.encode(user.getNewPassword()));
+    user.setNewPassword(null);
+    user.setId(userRepository.findByUsername(user.getUsername()).getId());
+    user.setScore(userRepository.findByUsername(user.getUsername()).getScore());
+    user.setAvatar(userRepository.findByUsername(user.getUsername()).getAvatar());
+    user.setDate(user.getDate());
+    userRepository.save(user);
+    return "Password succesfully changed!";
+} catch (AuthenticationException e) {
+    throw new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
+}
+}
+
+public Integer getScore(String token){
+  try {
+    return userRepository.findByUsername(jwtTokenProvider.getUsername(token)).getScore();
+} catch (AuthenticationException e) {
+    throw new CustomException("Invalid token/expired", HttpStatus.UNPROCESSABLE_ENTITY);
+}
+}
+
+
+public String uploadScore(String token, Integer newScore){
+  if(userRepository.findByUsername(jwtTokenProvider.getUsername(token)).getScore() < newScore){
+  try {
+     userRepository.findByUsername(jwtTokenProvider.getUsername(token)).setScore(newScore);
+     return "Highest score updated!";
+} catch (AuthenticationException e) {
+    throw new CustomException("Error updating scores", HttpStatus.UNPROCESSABLE_ENTITY);
+}
+  }
+  else{
+    return "No new high scores";
+  }
+}
+
+
+public String changeAvatarColor(String token, String newAvatar){
+  try {
+    userRepository.findByUsername(jwtTokenProvider.getUsername(token)).setAvatar(newAvatar);
+    return "Avatar color updated!";
+} catch (AuthenticationException e) {
+   throw new CustomException("Error updating avatar", HttpStatus.UNPROCESSABLE_ENTITY);
+}
+}
+
+
+public String getUserData(String token){
+  try {
+    return userRepository.findByUsername(jwtTokenProvider.getUsername(token)).getUserInfo();
+} catch (AuthenticationException e) {
+   throw new CustomException("Error getting user information", HttpStatus.UNPROCESSABLE_ENTITY);
+}
 }
 
 

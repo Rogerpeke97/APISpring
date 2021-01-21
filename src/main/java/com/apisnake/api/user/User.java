@@ -16,12 +16,22 @@ import javax.persistence.Table;
 @Table(name= "userentity")
 public class User {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Integer id; // IM GENERATING A NEW ID THAT IS WHY WHEN I CHANGE PASSWORD
+    // IT ACTS AS IF ITS A NEW USER BECAUSE THE ID's DO NOT MATCH, THEREFORE,
+    // THE USERNAME IS ALREADY IN USE
     @Column(unique = true, nullable = false)
   private String username;
 
   private String password;
+
+  private String newPassword;
+
+  private Integer score;
+
+  private String avatar;
+
+  private String date;
 
   @ElementCollection(fetch = FetchType.EAGER)
   List<Role> roles;
@@ -45,10 +55,43 @@ public class User {
   public String getPassword() {
     return password;
   }
-
+  
   public void setPassword(String password) {
     this.password = password;
   }
+
+  public String getNewPassword(){
+    return newPassword;
+}
+
+public void setNewPassword(String newPassword){
+    this.newPassword = newPassword;
+}
+
+  public Integer getScore(){
+    return score;
+  }
+
+  public void setScore(Integer score){
+    this.score = score;
+  }
+
+  public String getAvatar(){
+    return avatar;
+  }
+
+  public void setAvatar(String avatar){
+    this.avatar = avatar;
+  }
+
+  public String getDate(){
+    return date;
+  }
+
+  public void setDate(String date){
+    this.date = date;
+  }
+
 
   public List<Role> getRoles() {
     return roles;
@@ -56,5 +99,11 @@ public class User {
 
   public void setRoles(List<Role> roles) {
     this.roles = roles;
+  }
+
+
+  public String getUserInfo(){
+    String info = this.getUsername() + "," + this.getDate() + "," + this.getScore().toString();
+    return info;
   }
 }

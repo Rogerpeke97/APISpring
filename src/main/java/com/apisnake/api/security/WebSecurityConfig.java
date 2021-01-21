@@ -47,8 +47,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http.authorizeRequests()
         .antMatchers("/signin").permitAll()
         .antMatchers("/signup").permitAll()
+        .antMatchers("/changePassword").permitAll()
+        .antMatchers("/score").permitAll()
         .antMatchers(HttpMethod.OPTIONS,"/account").permitAll()//allow CORS option calls
-        .antMatchers(HttpMethod.POST, "/account").authenticated();
+        .antMatchers(HttpMethod.POST, "/account").authenticated()
+        .antMatchers(HttpMethod.OPTIONS,"/accountdetails").permitAll()//allow CORS option calls
+        .antMatchers(HttpMethod.POST, "/accountdetails").authenticated()
+        .antMatchers(HttpMethod.OPTIONS,"/uploadscore").permitAll()//allow CORS option calls
+        .antMatchers(HttpMethod.POST, "/uploadscore").authenticated();
 /*You need to configure the server to not require authorization for OPTIONS requests (that is, the server the request is being sent to — not the one serving your frontend code).
 
 That’s because what’s happening is this:
@@ -60,6 +66,8 @@ Your server sees the OPTIONS request but instead of responding to it in a way th
 Your browser expects a 200 or 204 response for the CORS preflight but instead gets that 401 response. So your browser stops right there and never tries the POST request from your code*/
     http.exceptionHandling().accessDeniedPage("/login");
     http.antMatcher("/account").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
+    http.antMatcher("/accountdetails").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
+    http.antMatcher("/uploadscore").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
     //APPLIES FILTER TO ACCOUNT, IF YOU ARE AUTHENTICATED YOU WILL RECEIVE THE MESSAGE
     //ELSE YOU WILL GET A CORS ERROR
   }
