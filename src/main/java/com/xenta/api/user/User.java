@@ -1,4 +1,4 @@
-package com.apisnake.api.user;
+package com.xenta.api.user;
 
 import java.util.List;
 
@@ -11,25 +11,24 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-
 @Entity
-@Table(name= "userentity")
+@Table(name = "userentity")
 public class User {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Integer id; // IM GENERATING A NEW ID THAT IS WHY WHEN I CHANGE PASSWORD
-    // IT ACTS AS IF ITS A NEW USER BECAUSE THE ID's DO NOT MATCH, THEREFORE,
-    // THE USERNAME IS ALREADY IN USE
-    @Column(unique = true, nullable = false)
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id; // IM GENERATING A NEW ID THAT IS WHY WHEN I CHANGE PASSWORD
+  // IT ACTS AS IF ITS A NEW USER BECAUSE THE ID's DO NOT MATCH, THEREFORE,
+  // THE USERNAME IS ALREADY IN USE
+  @Column(unique = true, nullable = false)
   private String username;
 
   private String password;
 
   private String newPassword;
 
-  private Integer score;
+  private Integer score = 0;
 
-  private String avatar;
+  private String avatarColor;
 
   private String date;
 
@@ -55,43 +54,42 @@ public class User {
   public String getPassword() {
     return password;
   }
-  
+
   public void setPassword(String password) {
     this.password = password;
   }
 
-  public String getNewPassword(){
+  public String getNewPassword() {
     return newPassword;
-}
+  }
 
-public void setNewPassword(String newPassword){
+  public void setNewPassword(String newPassword) {
     this.newPassword = newPassword;
-}
+  }
 
-  public Integer getScore(){
+  public Integer getScore() {
     return score;
   }
 
-  public void setScore(Integer score){
+  public void setScore(Integer score) {
     this.score = score;
   }
 
-  public String getAvatar(){
-    return avatar;
+  public String getAvatarColor() {
+    return avatarColor;
   }
 
-  public void setAvatar(String avatar){
-    this.avatar = avatar;
+  public void setAvatarColor(String color) {
+    this.avatarColor = color;
   }
 
-  public String getDate(){
+  public String getDate() {
     return date;
   }
 
-  public void setDate(String date){
+  public void setDate(String date) {
     this.date = date;
   }
-
 
   public List<Role> getRoles() {
     return roles;
@@ -101,8 +99,7 @@ public void setNewPassword(String newPassword){
     this.roles = roles;
   }
 
-
-  public String getUserInfo(){
+  public String getUserInfo() {
     String info = this.getUsername() + "," + this.getDate() + "," + this.getScore().toString();
     return info;
   }

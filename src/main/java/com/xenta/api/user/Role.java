@@ -1,4 +1,4 @@
-package com.apisnake.api.user;
+package com.xenta.api.user;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {

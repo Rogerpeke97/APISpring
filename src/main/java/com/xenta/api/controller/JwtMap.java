@@ -1,4 +1,4 @@
-package com.apisnake.api.controller;
+package com.xenta.api.controller;
 
 import java.io.Serializable;
 

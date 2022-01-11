@@ -1,4 +1,4 @@
-package com.apisnake.api.security;
+package com.xenta.api.security;
 
 import java.net.http.HttpRequest;
 import java.util.Arrays;

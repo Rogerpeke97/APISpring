@@ -1,12 +1,17 @@
-package com.apisnake.api.controller;
+package com.xenta.api.controller;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class NewPassword implements Serializable {
+import com.xenta.api.user.Role;
+
+public class Feedback implements Serializable {
     private static final long serialVersionUID = 1L;
     private String username;
     private String password;
     private String newPassword;
+    private String date;
+    List<Role> roles;
 
     public String getUsername(){
         return username;
@@ -29,4 +34,20 @@ public class NewPassword implements Serializable {
         this.newPassword = newPassword;
     }
 
+    public String getDate(){
+        return date;
+      }
+    
+      public void setDate(String date){
+        this.date = date;
+      }
+    
+
+    public List<Role> getRoles() {
+        return roles;
+      }
+    
+      public void setRoles(List<Role> roles) {
+        this.roles = roles;
+      }
 }

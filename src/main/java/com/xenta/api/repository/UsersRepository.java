@@ -1,12 +1,12 @@
-package com.apisnake.api.repository;
+package com.xenta.api.repository;
 
 import javax.transaction.Transactional;
 
-import com.apisnake.api.user.User;
+import com.xenta.api.user.User;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UsersRepository extends CrudRepository<User, Long> {
 
     
   boolean existsByUsername(String username);

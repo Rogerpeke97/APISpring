@@ -1,7 +1,7 @@
-package com.apisnake.api.security;
+package com.xenta.api.security;
 
-import com.apisnake.api.repository.*;
-import com.apisnake.api.user.User;
+import com.xenta.api.repository.*;
+import com.xenta.api.user.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,4 +1,4 @@
-package com.apisnake.api.security;
+package com.xenta.api.security;
 
 import java.util.Base64;
 import java.util.Date;
@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
-import com.apisnake.api.exception.CustomException;
-import com.apisnake.api.user.Role;
+import com.xenta.api.exception.CustomException;
+import com.xenta.api.user.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

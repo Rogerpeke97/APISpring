@@ -1,4 +1,4 @@
-package com.apisnake.api.exception;
+package com.xenta.api.exception;
 
 import org.springframework.http.HttpStatus;
 

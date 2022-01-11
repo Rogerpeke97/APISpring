@@ -1,4 +1,4 @@
-package com.apisnake.api.exception;
+package com.xenta.api.exception;
 
 public class GlobalException {
     

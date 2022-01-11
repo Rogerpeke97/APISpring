@@ -1,10 +1,10 @@
-package com.apisnake.api;
+package com.xenta.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApiApplicationTests {
+class MainTests {
 
 	@Test
 	void contextLoads() {

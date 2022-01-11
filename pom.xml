@@ -8,11 +8,11 @@
 		<version>2.3.4.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.apisnake</groupId>
+	<groupId>com.xenta</groupId>
 	<artifactId>api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
-	<description>Snakeapi</description>
+	<description>Xenta the game</description>
 
 	<properties>
 		<java.version>14</java.version>
