@@ -1,4 +1,4 @@
-package com.xenta.api.repository;
+package com.xenta.api.repositories;
 
 import javax.transaction.Transactional;
 

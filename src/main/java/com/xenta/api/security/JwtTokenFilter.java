@@ -41,18 +41,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-    String token = jwtTokenProvider.resolveToken(httpServletRequest);
-    //CHECKS FOR THE AUTHORIZATION HEADER AND EXECUTES RESOLVETOKEN FROM JWTTOKEN PROVIDER
-    // IF THERE IS NO HEADER OR THE HEADER TOKEN IS INVALID
-    // YOU WONT BE ABLE TO ACCESS TO /account
-    System.out.println(token);
     try {
-      if (token != null && jwtTokenProvider.validateToken(token)) {
-        System.out.println("authenticating in filter TOKEN");
-        System.out.println( httpServletRequest.getHeader("Authorization"));
-        Authentication auth = jwtTokenProvider.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-      }
+      String token = httpServletRequest.getHeader("Authorization");
+      //CHECKS FOR THE AUTHORIZATION HEADER AND EXECUTES RESOLVETOKEN FROM JWTTOKEN PROVIDER
+      // IF THERE IS NO HEADER OR THE HEADER TOKEN IS INVALID
+      // YOU WONT BE ABLE TO ACCESS TO /account
+      jwtTokenProvider.validateToken(token);
+      Authentication auth = jwtTokenProvider.getAuthentication(token);
+      SecurityContextHolder.getContext().setAuthentication(auth);
     } catch (CustomException ex) {
       SecurityContextHolder.clearContext();
       httpServletResponse.sendError(ex.getHttpStatus().value(), ex.getMessage());

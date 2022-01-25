@@ -45,7 +45,7 @@ public class JwtTokenProvider {
   public String createToken(String username, List<Role> roles) {
     System.out.println("creating TOKEN");
     Claims claims = Jwts.claims().setSubject(username);
-    claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));
+    claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getName())).filter(Objects::nonNull).collect(Collectors.toList()));
 
     Date now = new Date();
     Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -68,17 +68,7 @@ public class JwtTokenProvider {
     System.out.println(token);
     return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
   }
-
-  public String resolveToken(HttpServletRequest req) {
-    System.out.println(req.getHeader("Authorization"));
-    String bearerToken = req.getHeader("Authorization");
-    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-      System.out.println("THERE IS A TOKEN1");
-      return bearerToken.substring(7);
-    }
-    return null;
-  }
-
+  
   public boolean validateToken(String token) {
     try {
       System.out.println("validate TOKEN2");

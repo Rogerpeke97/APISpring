@@ -1,20 +1,24 @@
 package com.xenta.api.service;
 
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
-import com.xenta.api.exception.CustomException;
+import javax.servlet.http.Cookie;
+
+import com.xenta.api.repositories.UsersRepository;
 import com.xenta.api.security.JwtTokenProvider;
+import com.xenta.api.user.Role;
 import com.xenta.api.user.User;
-import com.xenta.api.repository.UsersRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import static java.util.stream.Collectors.toList;
+
 
 import net.minidev.json.JSONObject;
 
@@ -39,8 +43,10 @@ public class UserService {
           new UsernamePasswordAuthenticationToken(
               username,
               password));
+      System.out.println(authentication);
       return authentication.isAuthenticated();
     } catch (AuthenticationException e) {
+      System.out.println(e);
       return false;
     }
   }
@@ -49,26 +55,31 @@ public class UserService {
     return jwtTokenProvider.getUsername(token);
   }
 
-  public JSONObject signIn(User user) {
-    String username = user.getUsername();
-    String password = user.getPassword();
+  public JSONObject signIn(String username, String password) {
     JSONObject response = new JSONObject();
+    System.out.println("IS IT FAILING? " + authenticateUser(username, password));
     if (authenticateUser(username, password)) {
-      String token = jwtTokenProvider.createToken(username, usersRepository.findByUsername(username).getRoles());
-      response.put("username", username);
+      Collection<Role> roles = usersRepository.findByUsername(username).getRoles();
+      String token = jwtTokenProvider.createToken(username, rolesToList(roles));
+      response.put("message", "Successfully signed in");
       response.put("token", token);
     } else {
       response.put("error", "Invalid username or password");
     }
     return response;
   }
+  
+  public List<Role> rolesToList(Collection<Role> roles){
+    return roles.stream().collect(toList());
+  }
 
   public JSONObject signUp(User user) {
     String username = user.getUsername();
     String password = user.getPassword();
+    System.out.println(user);
     JSONObject response = new JSONObject();
     if (usersRepository.existsByUsername(username)) {
-      response.put("error", "Username is already taken");
+      response.put("error", "Email is already taken");
     } else {
       user.setPassword(passwordEncoder.encode(password));
       usersRepository.save(user);
@@ -114,25 +125,16 @@ public class UserService {
     return response;
   }
 
-  public JSONObject changeAvatarColor(String token, String color) {
-    User user = usersRepository.findByUsername(getUserFromToken(token));
-    JSONObject response = new JSONObject();
-    String[] colors = { "red", "blue", "green", "yellow", "black", "white" };
-    if (Arrays.asList(colors).contains(color)) {
-      user.setAvatarColor(color);
-      usersRepository.save(user);
-      response.put("message", "Avatar color succesfully changed!");
-    } else {
-      response.put("error", "Color not supported");
-    }
-    return response;
-  }
-
   public JSONObject getUserData(String token) {
     JSONObject response = new JSONObject();
     try {
       User user = usersRepository.findByUsername(getUserFromToken(token));
-      response.put("user", user);
+      response.put("username", user.getUsername());
+      response.put("score", user.getScore());
+      response.put("created_at", user.getCreated_at());
+      response.put("updated_at", user.getUpdated_at());
+      response.put("name", user.getName());
+      response.put("id", user.getId());
     } catch (AuthenticationException e) {
       response.put("error", "Token is invalid or expired");
     }
@@ -143,8 +145,10 @@ public class UserService {
     JSONObject response = new JSONObject();
     try {
       String username = getUserFromToken(token);
-      String newToken = jwtTokenProvider.createToken(username, usersRepository.findByUsername(username).getRoles());
+      Collection<Role> roles = usersRepository.findByUsername(username).getRoles();
+      String newToken = jwtTokenProvider.createToken(username, rolesToList(roles));
       response.put("token", newToken);
+      response.put("message", "Token refreshed");
     } catch (AuthenticationException e) {
       response.put("error", "Token is invalid or expired");
     }

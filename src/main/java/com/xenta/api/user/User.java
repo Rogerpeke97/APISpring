@@ -1,19 +1,25 @@
 package com.xenta.api.user;
 
-import java.util.List;
+import java.sql.Date;
+import java.util.Collection;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.JoinColumn;
+
+import lombok.Data;
 
 @Entity
-@Table(name = "userentity")
-public class User {
+@Table(name = "users_table")
+@Data public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id; // IM GENERATING A NEW ID THAT IS WHY WHEN I CHANGE PASSWORD
@@ -23,84 +29,24 @@ public class User {
   private String username;
 
   private String password;
-
-  private String newPassword;
+  
+  @Column(unique = true, nullable = false)
+  private String name;
 
   private Integer score = 0;
 
-  private String avatarColor;
+  private Date created_at;
 
-  private String date;
+  private Date updated_at;
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  List<Role> roles;
+  @OneToMany(fetch = FetchType.EAGER)
+  @JoinTable( 
+      name = "users_roles", 
+      joinColumns = @JoinColumn(
+        name = "user_id", referencedColumnName = "id"), 
+      inverseJoinColumns = @JoinColumn(
+        name = "role_id", referencedColumnName = "id")
+        ) 
+  private Collection<Role> roles;
 
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getNewPassword() {
-    return newPassword;
-  }
-
-  public void setNewPassword(String newPassword) {
-    this.newPassword = newPassword;
-  }
-
-  public Integer getScore() {
-    return score;
-  }
-
-  public void setScore(Integer score) {
-    this.score = score;
-  }
-
-  public String getAvatarColor() {
-    return avatarColor;
-  }
-
-  public void setAvatarColor(String color) {
-    this.avatarColor = color;
-  }
-
-  public String getDate() {
-    return date;
-  }
-
-  public void setDate(String date) {
-    this.date = date;
-  }
-
-  public List<Role> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(List<Role> roles) {
-    this.roles = roles;
-  }
-
-  public String getUserInfo() {
-    String info = this.getUsername() + "," + this.getDate() + "," + this.getScore().toString();
-    return info;
-  }
 }
