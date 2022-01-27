@@ -3,8 +3,6 @@ package com.xenta.api.service;
 import java.util.Collection;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
-
 import com.xenta.api.repositories.UsersRepository;
 import com.xenta.api.security.JwtTokenProvider;
 import com.xenta.api.service.Pojos.ResponseGeneric;
@@ -18,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import net.minidev.json.JSONObject;
 
