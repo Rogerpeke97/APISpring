@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 
 import com.xenta.api.exception.CustomException;
 import com.xenta.api.user.Role;
@@ -71,7 +70,6 @@ public class JwtTokenProvider {
   
   public boolean validateToken(String token) {
     try {
-      System.out.println("validate TOKEN2");
       Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
       return true;
     } catch (JwtException | IllegalArgumentException e) {

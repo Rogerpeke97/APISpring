@@ -1,5 +1,7 @@
 package com.xenta.api.security;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,50 +15,52 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-  
 
   @Autowired
   private JwtTokenProvider jwtTokenProvider;
 
   @Bean
-   public ModelMapper modelMapper() {
-      ModelMapper modelMapper = new ModelMapper();
-      return modelMapper;
-   }
-
-
-
+  public ModelMapper modelMapper() {
+    ModelMapper modelMapper = new ModelMapper();
+    return modelMapper;
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
 
-    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    http.cors().and().csrf().disable();
-/*You need to configure the server to not require authorization for OPTIONS requests (that is, the server the request is being sent to — not the one serving your frontend code).
+    http = http.cors().and().csrf().disable();
 
-That’s because what’s happening is this:
+    http = http
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and();
 
-Your code’s telling your browser it wants to send a request with the Authorization header.
-Your browser says, OK, requests with the Authorization header require me to do a CORS preflight OPTIONS to make sure the server allows requests with the Authorization header.
-Your browser sends the OPTIONS request to the server without the Authorization header, because the whole purpose of the OPTIONS check is to see if it’s OK to include that header.
-Your server sees the OPTIONS request but instead of responding to it in a way that indicates it allows the Authorization header in requests, it rejects it with a 401 since it lacks the header.
-Your browser expects a 200 or 204 response for the CORS preflight but instead gets that 401 response. So your browser stops right there and never tries the POST request from your code*/
-    http.exceptionHandling().accessDeniedPage("/login");
-    http.antMatcher("/signup").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-    http.antMatcher("/user").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-    http.antMatcher("/changepassword").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-    http.antMatcher("/score").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-    http.antMatcher("/updatescore").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-    http.antMatcher("/ping").apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-    //APPLIES FILTER TO ACCOUNT, IF YOU ARE AUTHENTICATED YOU WILL RECEIVE THE MESSAGE
-    //ELSE YOU WILL GET A CORS ERROR
+    http = http
+        .exceptionHandling()
+        .authenticationEntryPoint(
+            (request, response, ex) -> {
+              response.sendError(
+                  HttpServletResponse.SC_UNAUTHORIZED,
+                  ex.getMessage());
+            })
+        .and();
+
+    http
+        .antMatcher("/api/**")
+        .authorizeRequests()
+          .anyRequest().authenticated()
+          .and();
+
+    http.addFilterBefore(
+        new JwtTokenFilter(jwtTokenProvider),
+        UsernamePasswordAuthenticationFilter.class);
   }
-
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -68,6 +72,5 @@ Your browser expects a 200 or 204 response for the CORS preflight but instead ge
   public AuthenticationManager authenticationManagerBean() throws Exception {
     return super.authenticationManagerBean();
   }
-
 
 }

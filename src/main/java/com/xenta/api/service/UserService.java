@@ -7,6 +7,7 @@ import javax.servlet.http.Cookie;
 
 import com.xenta.api.repositories.UsersRepository;
 import com.xenta.api.security.JwtTokenProvider;
+import com.xenta.api.service.Pojos.ResponseGeneric;
 import com.xenta.api.user.Role;
 import com.xenta.api.user.User;
 
@@ -17,10 +18,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import static java.util.stream.Collectors.toList;
-
+import org.springframework.ui.Model;
 
 import net.minidev.json.JSONObject;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class UserService {
@@ -55,104 +57,89 @@ public class UserService {
     return jwtTokenProvider.getUsername(token);
   }
 
-  public JSONObject signIn(String username, String password) {
-    JSONObject response = new JSONObject();
-    System.out.println("IS IT FAILING? " + authenticateUser(username, password));
+  public ResponseGeneric<String> signIn(String username, String password) {
     if (authenticateUser(username, password)) {
       Collection<Role> roles = usersRepository.findByUsername(username).getRoles();
       String token = jwtTokenProvider.createToken(username, rolesToList(roles));
-      response.put("message", "Successfully signed in");
-      response.put("token", token);
+      ResponseGeneric<String> signInObject = new ResponseGeneric<>(token, "Successfully signed in", "");
+      return signInObject;
     } else {
-      response.put("error", "Invalid username or password");
+      ResponseGeneric<String> signInObject = new ResponseGeneric<>("", "", "Invalid username or password");
+      return signInObject;
     }
-    return response;
   }
   
   public List<Role> rolesToList(Collection<Role> roles){
     return roles.stream().collect(toList());
   }
 
-  public JSONObject signUp(User user) {
-    String username = user.getUsername();
-    String password = user.getPassword();
-    System.out.println(user);
-    JSONObject response = new JSONObject();
-    if (usersRepository.existsByUsername(username)) {
-      response.put("error", "Email is already taken");
+  public ResponseGeneric<String> signUp(User user) {
+    if (usersRepository.existsByUsername(user.getUsername())) {
+      ResponseGeneric<String> signUpObject = new ResponseGeneric<>("", "", "Username is already taken!");
+      return signUpObject;
     } else {
-      user.setPassword(passwordEncoder.encode(password));
+      user.setPassword(passwordEncoder.encode(user.getPassword()));
       usersRepository.save(user);
-      response.put("message", "User registered successfully");
+      ResponseGeneric<String> signUpObject = new ResponseGeneric<>("", "Successfully signed up", "");
+      return signUpObject;
     }
-    return response;
   }
 
-  public JSONObject changePassword(String newPassword, String token) {
-    JSONObject response = new JSONObject();
+  public ResponseGeneric<String> changePassword(String newPassword, String token) {
     try {
       User userByToken = usersRepository.findByUsername(getUserFromToken(token));
       userByToken.setPassword(passwordEncoder.encode(newPassword));
       usersRepository.save(userByToken);
-      response.put("message", "Password succesfully changed!");
+      ResponseGeneric<String> passwordUpdateObject = new ResponseGeneric<>("", "Successfully changed password", "");
+      return passwordUpdateObject;
     } catch (AuthenticationException e) {
-      response.put("error", "Token is invalid or expired");
+      ResponseGeneric<String> passwordUpdateObject = new ResponseGeneric<>("", "", "Invalid token");
+      return passwordUpdateObject;
     }
-    return response;
   }
 
-  public JSONObject getScore(String token) {
-    JSONObject response = new JSONObject();
-    try {
-      Integer score = usersRepository.findByUsername(getUserFromToken(token)).getScore();
-      response.put("score", score);
-    } catch (AuthenticationException e) {
-      response.put("error", "Token is invalid or expired");
-    }
-    return response;
-  }
-
-  public JSONObject updateScore(String token, Integer newScore) {
+  public ResponseGeneric<String> updateScore(String token, Integer newScore) {
     User user = usersRepository.findByUsername(getUserFromToken(token));
-    JSONObject response = new JSONObject();
     if (user.getScore() < newScore) {
       user.setScore(newScore);
       usersRepository.save(user);
-      response.put("message", "New highscore updated!");
-    } else {
-      response.put("message", "New highscore is not higher than current highscore");
-    }
-    return response;
+      ResponseGeneric<String> scoreObject = new ResponseGeneric<>("", "Successfully updated score", "");
+      return scoreObject;
+    } 
+    ResponseGeneric<String> scoreObject = new ResponseGeneric<>("", "", "Score must be greater than current score");
+    return scoreObject;
   }
 
-  public JSONObject getUserData(String token) {
-    JSONObject response = new JSONObject();
+  public ResponseGeneric<JSONObject> getUserData(String token) {
+    JSONObject userData = new JSONObject();
     try {
       User user = usersRepository.findByUsername(getUserFromToken(token));
-      response.put("username", user.getUsername());
-      response.put("score", user.getScore());
-      response.put("created_at", user.getCreated_at());
-      response.put("updated_at", user.getUpdated_at());
-      response.put("name", user.getName());
-      response.put("id", user.getId());
+      userData.put("username", user.getUsername());
+      userData.put("score", user.getScore());
+      userData.put("roles", user.getRoles());
+      userData.put("id", user.getId());
+      userData.put("name", user.getName());
+      userData.put("created_at", user.getCreated_at());
+      userData.put("updated_at", user.getUpdated_at());
+      ResponseGeneric<JSONObject> userObject = new ResponseGeneric<>(userData, "Successfully retrieved user data", "");
+      return userObject;
     } catch (AuthenticationException e) {
-      response.put("error", "Token is invalid or expired");
+      ResponseGeneric<JSONObject> userObject = new ResponseGeneric<>(null, "", "Invalid token");
+      return userObject;
     }
-    return response;
   }
 
-  public JSONObject refresh(String token) {
-    JSONObject response = new JSONObject();
+  public ResponseGeneric<String> refresh(String token) {
     try {
       String username = getUserFromToken(token);
       Collection<Role> roles = usersRepository.findByUsername(username).getRoles();
       String newToken = jwtTokenProvider.createToken(username, rolesToList(roles));
-      response.put("token", newToken);
-      response.put("message", "Token refreshed");
+      ResponseGeneric<String> tokenObject = new ResponseGeneric<>(newToken, "Successfully refreshed token", "");
+      return tokenObject;
     } catch (AuthenticationException e) {
-      response.put("error", "Token is invalid or expired");
+      ResponseGeneric<String> tokenObject = new ResponseGeneric<>("", "", "Invalid token");
+      return tokenObject;
     }
-    return response;
   }
 
 }

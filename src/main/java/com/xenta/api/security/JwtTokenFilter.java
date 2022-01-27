@@ -52,9 +52,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     } catch (CustomException ex) {
       SecurityContextHolder.clearContext();
       httpServletResponse.sendError(ex.getHttpStatus().value(), ex.getMessage());
-      return;
     }
-
     filterChain.doFilter(httpServletRequest, httpServletResponse);
   }
 

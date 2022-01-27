@@ -3,6 +3,7 @@ package com.xenta.api.controller;
 import javax.servlet.http.HttpServletResponse;
 
 import com.xenta.api.service.UserService;
+import com.xenta.api.service.Pojos.ResponseGeneric;
 import com.xenta.api.user.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ResponseHeader;
 import net.minidev.json.JSONObject;
+
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -24,60 +25,48 @@ public class ApiController {
   private UserService userService;
 
   @PostMapping(value = "/signin", consumes = "application/json", produces = "application/json")
-  public JSONObject signIn(@RequestBody User user, HttpServletResponse response) {
-    JSONObject signInResult = userService.signIn(user.getUsername(), user.getPassword());
-    if (signInResult.get("token") != null) {
-      System.out.println(signInResult.get("token"));
-      response.addHeader("Authorization", signInResult.get("token").toString());
-      response.setHeader("Access-Control-Expose-Headers", "Content-Type, Accept, Authorization");
+  public ResponseGeneric<String> signIn(@RequestBody User user, HttpServletResponse response) {
+    ResponseGeneric<String> signedIn = userService.signIn(user.getUsername(), user.getPassword());
+    if (signedIn.getData() == "") {
+      return signedIn;
     }
-    return signInResult;
+    response.addHeader("Authorization", signedIn.getData());
+    response.setHeader("Access-Control-Expose-Headers", "Content-Type, Accept, Authorization");
+    signedIn.setData("");
+    return signedIn;
   }
 
   @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
   @ResponseBody
-  public JSONObject register(@RequestBody User user) {
+  public ResponseGeneric<String> register(@RequestBody User user) {
     return userService.signUp(user);
   }
 
-  @GetMapping(value = "/user", consumes = "application/json", produces = "application/json")
+  @GetMapping(value = "/api/user", consumes = "application/json", produces = "application/json")
   @ResponseBody
-  public JSONObject userInfo(@RequestHeader("Authorization") String token) {
-    
+  public ResponseGeneric<JSONObject> userInfo(@RequestHeader("Authorization") String token) {
     return userService.getUserData(token);
-
   }
 
-  @PostMapping(value = "/changepassword", consumes = "application/json", produces = "application/json")
+  @PostMapping(value = "/api/changepassword", consumes = "application/json", produces = "application/json")
   @ResponseBody
-  public JSONObject changePassword(@RequestBody ChangePasswordForm form, @RequestHeader("Authorization") String token) {
-    JSONObject changePasswordResult = userService.signIn(form.getUsername(), form.getOldPassword());
-    if(changePasswordResult.get("token") != null) {
-      return userService.changePassword(form.getUsername(), form.getNewPassword());
-    }
-    return changePasswordResult;
+  public ResponseGeneric<String> changePassword(@RequestBody ChangePasswordForm form, @RequestHeader("Authorization") String token) {
+    return userService.changePassword(form.getUsername(), form.getNewPassword());
   }
 
-  @PostMapping(value = "/score", consumes = "application/json", produces = "application/json")
+  @PostMapping(value = "/api/updatescore", consumes = "application/json", produces = "application/json")
   @ResponseBody
-  public JSONObject score(@RequestHeader("Authorization") String token) {
-    return userService.getScore(token);
-  }
-
-  @PostMapping(value = "/updatescore", consumes = "application/json", produces = "application/json")
-  @ResponseBody
-  public JSONObject upload(@RequestBody Integer score, @RequestHeader("Authorization") String token) {
+  public ResponseGeneric<String> upload(@RequestBody Integer score, @RequestHeader("Authorization") String token) {
     return userService.updateScore(token, score);
   }
 
-  @GetMapping(value = "/ping", consumes = "application/json", produces = "application/json")
+  @GetMapping(value = "/api/ping", consumes = "application/json", produces = "application/json")
   @ResponseBody
-  public JSONObject ping(@RequestHeader("Authorization") String token, HttpServletResponse response) {
-    JSONObject refreshTokenOk = userService.refresh(token);
-    if (refreshTokenOk.get("token") != null) {
-      response.addHeader("Authorization", refreshTokenOk.get("token").toString());
-      response.setHeader("Access-Control-Expose-Headers", "Content-Type, Accept, Authorization");
-    }
-    return refreshTokenOk;
+  public ResponseGeneric<String> ping(@RequestHeader("Authorization") String token, HttpServletResponse response) {
+    ResponseGeneric<String> refreshedToken = userService.refresh(token);
+    response.addHeader("Authorization", refreshedToken.getData());
+    response.setHeader("Access-Control-Expose-Headers", "Content-Type, Accept, Authorization");
+    refreshedToken.setData("");
+    return refreshedToken;
   }
 }

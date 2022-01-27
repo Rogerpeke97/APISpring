@@ -13,9 +13,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import javax.persistence.JoinColumn;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.AccessLevel;
 
 @Entity
 @Table(name = "users_table")
