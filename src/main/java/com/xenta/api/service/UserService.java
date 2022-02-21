@@ -2,6 +2,7 @@ package com.xenta.api.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.xenta.api.repositories.UsersRepository;
@@ -37,19 +38,23 @@ public class UserService {
   @Autowired
   private AuthenticationManager authenticationManager;
 
-  public static final Pattern VALID_EMAIL_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$");
+  public static final Pattern VALID_EMAIL_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-  public static final Pattern VALID_PASSWORD_REGEX = Pattern.compile("/^(?=.*[A-Z])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$/");
+  public static final Pattern VALID_PASSWORD_REGEX = Pattern.compile("^(?=.*[A-Z])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$", Pattern.CASE_INSENSITIVE);
 
-  public static final Pattern VALID_NAME_REGEX = Pattern.compile("/^().{1,15}$/");
+  public static final Pattern VALID_NAME_REGEX = Pattern.compile("^().{1,15}$", Pattern.CASE_INSENSITIVE);
 
   private boolean areFieldsValid(String username, String password, String name) {
-    Boolean isValidEmail = VALID_EMAIL_REGEX.matcher(username).find();
-    Boolean isValidPassword = VALID_PASSWORD_REGEX.matcher(password).find();
+    Matcher validEmail = VALID_EMAIL_REGEX.matcher(username);
+    boolean isValidEmail = validEmail.find();
+    Matcher validPassword = VALID_PASSWORD_REGEX.matcher(password);
+    boolean isValidPassword = validPassword.find();
     if(name.length() == 0){
       return isValidEmail && isValidPassword;
     }
-    Boolean isValidName = VALID_NAME_REGEX.matcher(name).find();
+    Matcher validName = VALID_NAME_REGEX.matcher(name);
+    boolean isValidName = validName.find();
+    System.out.println(isValidEmail + " " + isValidPassword + " " + isValidName);
     return isValidEmail && isValidPassword && isValidName;
   }
 
@@ -112,7 +117,7 @@ public class UserService {
 
   public ResponseGeneric<String> changePassword(String newPassword, String token) {
     try {
-      Boolean isValidPassword = VALID_PASSWORD_REGEX.matcher(newPassword).find();
+      boolean isValidPassword = VALID_PASSWORD_REGEX.matcher(newPassword).find();
       if(!isValidPassword){
         throw new Error("Invalid password");
       }
