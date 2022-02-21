@@ -113,7 +113,7 @@ public class UserService {
   public ResponseGeneric<String> changePassword(String newPassword, String token) {
     try {
       Boolean isValidPassword = VALID_PASSWORD_REGEX.matcher(newPassword).find();
-      if(isValidPassword){
+      if(!isValidPassword){
         throw new Error("Invalid password");
       }
       User userByToken = usersRepository.findByUsername(getUserFromToken(token));
