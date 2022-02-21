@@ -2,6 +2,7 @@ package com.xenta.api.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.xenta.api.repositories.UsersRepository;
 import com.xenta.api.security.JwtTokenProvider;
@@ -36,8 +37,27 @@ public class UserService {
   @Autowired
   private AuthenticationManager authenticationManager;
 
+  public static final Pattern VALID_EMAIL_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$");
+
+  public static final Pattern VALID_PASSWORD_REGEX = Pattern.compile("/^(?=.*[A-Z])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$/");
+
+  public static final Pattern VALID_NAME_REGEX = Pattern.compile("/^().{1,15}$/");
+
+  private boolean areFieldsValid(String username, String password, String name) {
+    Boolean isValidEmail = VALID_EMAIL_REGEX.matcher(username).find();
+    Boolean isValidPassword = VALID_PASSWORD_REGEX.matcher(password).find();
+    if(name.length() == 0){
+      return isValidEmail && isValidPassword;
+    }
+    Boolean isValidName = VALID_NAME_REGEX.matcher(name).find();
+    return isValidEmail && isValidPassword && isValidName;
+  }
+
   private boolean authenticateUser(String username, String password) {
     try {
+      if(!areFieldsValid(username, password, "")){
+        throw new Error("Invalid username or password");
+      }
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(
               username,
@@ -71,19 +91,31 @@ public class UserService {
   }
 
   public ResponseGeneric<String> signUp(User user) {
-    if (usersRepository.existsByUsername(user.getUsername())) {
-      ResponseGeneric<String> signUpObject = new ResponseGeneric<>("", "", "Username is already taken!");
-      return signUpObject;
-    } else {
+    try{
+      if(!areFieldsValid(user.getUsername(), user.getPassword(), user.getName())){
+        throw new Error("Invalid username or password");
+      }
+      if (usersRepository.existsByUsername(user.getUsername())) {
+        ResponseGeneric<String> signUpObject = new ResponseGeneric<>("", "", "Username is already taken!");
+        return signUpObject;
+      }
       user.setPassword(passwordEncoder.encode(user.getPassword()));
       usersRepository.save(user);
       ResponseGeneric<String> signUpObject = new ResponseGeneric<>("", "Successfully signed up", "");
       return signUpObject;
+    } catch (Exception e) {
+      ResponseGeneric<String> signUpObject = new ResponseGeneric<>("", "", "Invalid username or password");
+      return signUpObject;
     }
+
   }
 
   public ResponseGeneric<String> changePassword(String newPassword, String token) {
     try {
+      Boolean isValidPassword = VALID_PASSWORD_REGEX.matcher(newPassword).find();
+      if(isValidPassword){
+        throw new Error("Invalid password");
+      }
       User userByToken = usersRepository.findByUsername(getUserFromToken(token));
       userByToken.setPassword(passwordEncoder.encode(newPassword));
       usersRepository.save(userByToken);
